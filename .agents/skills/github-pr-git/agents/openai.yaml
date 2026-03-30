@@ -1,0 +1,7 @@
+interface:
+  display_name: "GitHub PR CLI"
+  short_description: "Manage PRs, branches, pulls, and pushes."
+  default_prompt: "Use $github-pr-git to inspect PR state, manage branches, pull remote changes, and push updates safely with gh and git."
+
+policy:
+  allow_implicit_invocation: true

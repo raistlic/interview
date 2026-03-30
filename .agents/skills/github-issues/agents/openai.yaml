@@ -1,0 +1,7 @@
+interface:
+  display_name: "GitHub Issues CLI"
+  short_description: "Manage issues with gh safely."
+  default_prompt: "Use $github-issues to inspect, create, edit, comment on, and triage GitHub issues with gh."
+
+policy:
+  allow_implicit_invocation: true
