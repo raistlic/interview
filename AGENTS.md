@@ -30,6 +30,7 @@ Always work on a feature branch, never make changes on main branch directly.
 - After the task is done, stage all changes, commit with appropriate message.
 - When the first commit is made on a feature branch, automatically push the branch, create a GitHub PR with an appropriate title and description, and provide the PR link in the console output without stopping to ask permission.
 - For later changes on the same feature branch, automatically commit the changes, push the branch, and update the existing PR without stopping to ask permission.
+- After a PR is merged, automatically delete the remote feature branch, switch back to `main`, and sync `main` with `origin/main` without stopping to ask permission. Keep the local feature branch unless the user explicitly asks to delete it.
 
 ### Standing Permissions
 
