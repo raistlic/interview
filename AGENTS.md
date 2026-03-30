@@ -16,6 +16,7 @@ Specialized sub-agents are defined in `.agents/`. Use them for focused tasks:
 | `frontend-dev` | React/TypeScript development in the `admin-hub` module |
 | `security-reviewer` | Auditing auth logic, token handling, or reviewing changes for vulnerabilities |
 | `build-ops` | Gradle issues, Docker Compose problems, CI/Make failures |
+| `business-analyst` | Breaking large features into smaller requirements and handing ticket drafting to `issue-manager` |
 | `issue-manager` | Drafting, creating, and triaging GitHub issues from prompt instructions |
 
 ## Core Principles
