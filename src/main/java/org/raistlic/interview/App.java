@@ -17,7 +17,8 @@ import javax.imageio.ImageIO;
 
 public final class App {
     private static final int SNAPSHOT_COUNT = 5;
-    private static final Path SNAPSHOT_DIRECTORY = Path.of("src", "main", "resources", "snapshot");
+    private static final String SNAPSHOT_DIRECTORY_PROPERTY = "interview.snapshot.dir";
+    private static final Path DEFAULT_SNAPSHOT_DIRECTORY = Path.of("src", "main", "resources", "snapshot");
     private static final String FONT_RESOURCE = "/font.otf";
 
     private App() {
@@ -28,7 +29,8 @@ public final class App {
     }
 
     static void generateSnapshots() throws IOException, FontFormatException {
-        Files.createDirectories(SNAPSHOT_DIRECTORY);
+        Path snapshotDirectory = snapshotDirectory();
+        Files.createDirectories(snapshotDirectory);
 
         TextImageGenerator generator = new TextImageGenerator();
         Supplier<Font> fontSupplier = createFontSupplier();
@@ -44,11 +46,19 @@ public final class App {
                 parameters.padding(),
                 fontSupplier
             );
-            Path imageFile = SNAPSHOT_DIRECTORY.resolve("snapshot-" + index + ".png");
-            Path metadataFile = SNAPSHOT_DIRECTORY.resolve("snapshot-" + index + ".json");
+            Path imageFile = snapshotDirectory.resolve("snapshot-" + index + ".png");
+            Path metadataFile = snapshotDirectory.resolve("snapshot-" + index + ".json");
             ImageIO.write(image, "png", imageFile.toFile());
             Files.writeString(metadataFile, parameters.toJson(), StandardCharsets.UTF_8);
         }
+    }
+
+    private static Path snapshotDirectory() {
+        String configuredDirectory = System.getProperty(SNAPSHOT_DIRECTORY_PROPERTY);
+        if (configuredDirectory == null || configuredDirectory.isBlank()) {
+            return DEFAULT_SNAPSHOT_DIRECTORY;
+        }
+        return Path.of(configuredDirectory);
     }
 
     private static Supplier<Font> createFontSupplier() {
