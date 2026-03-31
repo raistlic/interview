@@ -1,21 +1,18 @@
 package org.raistlic.interview;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.awt.image.BufferedImage;
 import org.junit.jupiter.api.Test;
 
 class TextImageGeneratorTest {
     @Test
-    void generatesImageFileInProjectRoot() throws Exception {
-        Path outputFile = Path.of("generated-text.png");
-        Files.deleteIfExists(outputFile);
+    void generatesBufferedImage() throws Exception {
+        BufferedImage image = new TextImageGenerator().generate("hello");
 
-        new TextImageGenerator().generate("hello");
-
-        assertTrue(Files.exists(outputFile));
-
-        Files.deleteIfExists(outputFile);
+        assertNotNull(image);
+        assertTrue(image.getWidth() > 0);
+        assertTrue(image.getHeight() > 0);
     }
 }

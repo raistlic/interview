@@ -9,14 +9,11 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
-import javax.imageio.ImageIO;
 
 public final class TextImageGenerator {
     private static final String FONT_RESOURCE = "/font.otf";
-    private static final Path OUTPUT_FILE = Path.of("generated-text.png");
 
-    public Path generate(String text) throws IOException, FontFormatException {
+    public BufferedImage generate(String text) throws IOException, FontFormatException {
         Font font = loadFont().deriveFont(Font.PLAIN, 72f);
         BufferedImage measurementImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D measurementGraphics = measurementImage.createGraphics();
@@ -41,8 +38,7 @@ public final class TextImageGenerator {
                 graphics.dispose();
             }
 
-            ImageIO.write(image, "png", OUTPUT_FILE.toFile());
-            return OUTPUT_FILE;
+            return image;
         } finally {
             measurementGraphics.dispose();
         }
