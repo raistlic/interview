@@ -1,59 +1,62 @@
 package org.raistlic.interview;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import javax.imageio.ImageIO;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 public final class TextImageGenerator {
-    private static final String FONT_RESOURCE = "/font.otf";
-    private static final Path OUTPUT_FILE = Path.of("generated-text.png");
+    public BufferedImage generate(
+        String text,
+        Color foregroundColor,
+        Color backgroundColor,
+        Dimension dimension,
+        Insets padding,
+        Supplier<Font> fontSupplier
+    ) {
+        Objects.requireNonNull(text, "text");
+        Objects.requireNonNull(foregroundColor, "foregroundColor");
+        Objects.requireNonNull(backgroundColor, "backgroundColor");
+        Objects.requireNonNull(dimension, "dimension");
+        Objects.requireNonNull(padding, "padding");
+        Objects.requireNonNull(fontSupplier, "fontSupplier");
 
-    public Path generate(String text) throws IOException, FontFormatException {
-        Font font = loadFont().deriveFont(Font.PLAIN, 72f);
-        BufferedImage measurementImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D measurementGraphics = measurementImage.createGraphics();
-        try {
-            measurementGraphics.setFont(font);
-            FontMetrics metrics = measurementGraphics.getFontMetrics();
-            int width = Math.max(1, metrics.stringWidth(text));
-            int height = Math.max(1, metrics.getHeight());
-
-            BufferedImage image = new BufferedImage(width + 48, height + 48, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D graphics = image.createGraphics();
-            try {
-                graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-                graphics.setColor(Color.WHITE);
-                graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
-                graphics.setColor(Color.BLACK);
-                graphics.setFont(font);
-                FontMetrics drawMetrics = graphics.getFontMetrics();
-                graphics.drawString(text, 24, 24 + drawMetrics.getAscent());
-            } finally {
-                graphics.dispose();
-            }
-
-            ImageIO.write(image, "png", OUTPUT_FILE.toFile());
-            return OUTPUT_FILE;
-        } finally {
-            measurementGraphics.dispose();
+        if (dimension.width <= 0) {
+            throw new IllegalArgumentException("dimension.width must be positive");
         }
-    }
+        if (dimension.height <= 0) {
+            throw new IllegalArgumentException("dimension.height must be positive");
+        }
+        if (padding.top < 0 || padding.left < 0 || padding.bottom < 0 || padding.right < 0) {
+            throw new IllegalArgumentException("padding values must be non-negative");
+        }
+        if (padding.left + padding.right >= dimension.width || padding.top + padding.bottom >= dimension.height) {
+            throw new IllegalArgumentException("padding must leave drawable area inside the image");
+        }
 
-    private Font loadFont() throws IOException, FontFormatException {
-        try (InputStream inputStream = getClass().getResourceAsStream(FONT_RESOURCE)) {
-            if (inputStream == null) {
-                throw new IOException("Missing font resource: " + FONT_RESOURCE);
-            }
-            return Font.createFont(Font.TRUETYPE_FONT, inputStream);
+        Font font = fontSupplier.get();
+        if (font == null) {
+            throw new IllegalArgumentException("fontSupplier must provide a font");
+        }
+
+        BufferedImage image = new BufferedImage(dimension.width, dimension.height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+        try {
+            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            graphics.setColor(backgroundColor);
+            graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
+            graphics.setColor(foregroundColor);
+            graphics.setFont(font);
+            graphics.drawString(text, padding.left, padding.top + graphics.getFontMetrics().getAscent());
+            return image;
+        } finally {
+            graphics.dispose();
         }
     }
 }
